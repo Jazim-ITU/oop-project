@@ -1,0 +1,58 @@
+#include "Customer.h"
+using namespace std;
+
+Customer::Customer(int id, const string& user, const string& mail,
+    const string& pass, const string& addr, const string& phone)
+    : User(id, user, mail, pass), address(addr), phoneNumber(phone), loyaltyPoints(0) {
+    cart = new ShoppingCart(id * 1000);
+}
+
+Customer::~Customer() {
+    delete cart;
+    for (Order* order : orderHistory) {
+        delete order;
+    }
+}
+
+void Customer::displayInfo() const {
+    cout << "=== Customer Information ===" << endl;
+    cout << "ID: " << userId << endl;
+    cout << "Username: " << username << endl;
+    cout << "Email: " << email << endl;
+    cout << "Address: " << address << endl;
+    cout << "Phone: " << phoneNumber << endl;
+    cout << "Loyalty Points: " << loyaltyPoints << endl;
+}
+
+Order* Customer::placeOrder() {
+    if (cart->isEmpty()) {
+        cout << "Cart is empty! Cannot place order." << endl;
+        return nullptr;
+    }
+    Order* newOrder = new Order(static_cast<int>(orderHistory.size()) + 1, *cart, address);
+    orderHistory.push_back(newOrder);
+    cart->clearCart();
+    cout << "Order placed successfully! Order ID: " << newOrder->getOrderId() << endl;
+    return newOrder;
+}
+
+void Customer::viewOrderHistory() const {
+    cout << "=== Order History ===" << endl;
+    if (orderHistory.empty()) {
+        cout << "No orders found." << endl;
+        return;
+    }
+    for (const Order* order : orderHistory) {
+        order->displayOrderDetails();
+        cout << "-------------------" << endl;
+    }
+}
+
+void Customer::addToCart(Product* product, int quantity) {
+    if (product == nullptr) {
+        cout << "Invalid product!" << endl;
+        return;
+    }
+    cart->addItem(product, quantity);
+    cout << "Item added to cart successfully!" << endl;
+}
